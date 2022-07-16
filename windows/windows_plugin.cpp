@@ -18,12 +18,10 @@
 #pragma once
 #include <winrt/Windows.Services.Store.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Web.Syndication.h>
 #include <iostream>
 
 using namespace winrt;
 using namespace Windows::Foundation;
-using namespace Windows::Web::Syndication;
 using namespace Windows::Services::Store;
 using namespace Concurrency;
 
@@ -73,12 +71,6 @@ void WindowsPlugin::HandleMethodCall(
     printf("%p", hwnd);
     version_stream << hwnd;
     StoreContext storeContext = StoreContext::GetDefault();
-    //storeContext.GetAppLicenseAsync();
-    //concurrency::create_task(storeContext.GetAppLicenseAsync()).then([](StoreAppLicense license)
-    //    {
-    //        printf("%d", license.IsActive());
-    //        
-    //    }, task_continuation_context::get_current_winrt_context());
     if (IsWindows10OrGreater()) {
       version_stream << "10+";
     } else if (IsWindows8OrGreater()) {

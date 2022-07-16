@@ -12,6 +12,19 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # not be changed
 set(PLUGIN_NAME "windows_plugin_plugin")
 
+################ NuGet intall begin ################
+find_program(NUGET_EXE NAMES nuget)
+if(NOT NUGET_EXE)
+	message("NUGET.EXE not found.")
+	message(FATAL_ERROR "Please install this executable, and run CMake again.")
+endif()
+
+exec_program(${NUGET_EXE}
+    ARGS install "Microsoft.Windows.CppWinRT" -Version 2.0.220608.4 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+exec_program(${NUGET_EXE}
+    ARGS install "Microsoft.Toolkit.Uwp.Notifications" -Version 7.0.2 -ExcludeVersion -OutputDirectory ${CMAKE_BINARY_DIR}/packages)
+################ NuGet install end ################
+
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
   "windows_plugin.cpp"
@@ -38,11 +51,23 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
+################ NuGet import begin ################
+set_target_properties(${PLUGIN_NAME} PROPERTIES VS_PROJECT_IMPORT
+  ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.CppWinRT/build/native/Microsoft.Windows.CppWinRT.props
+)
+
+target_link_libraries(${PLUGIN_NAME} PRIVATE
+  ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.CppWinRT/build/native/Microsoft.Windows.CppWinRT.targets
+  ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.CppWinRT/build/native/Microsoft.Toolkit.Uwp.Notifications.targets
+)
+################ NuGet import end ################
+
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
+
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
@@ -51,3 +76,5 @@ set(windows_plugin_bundled_libraries
   ""
   PARENT_SCOPE
 )
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
